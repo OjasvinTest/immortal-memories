@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immortal Memories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: skyblue;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+            color: black;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: skyblue;
+        }
+        .upload-container, .comment-container, .emoji-container, .photo-container, .account-section {
+            margin-top: 20px;
+        }
+        input[type="file"], textarea, input[type="text"], input[type="password"] {
+            display: block;
+            width: calc(100% - 22px);
+            margin: 10px auto;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        textarea {
+            height: 80px;
+        }
+        .emoji-container button {
+            font-size: 1.5em;
+            margin: 5px;
+        }
+        .photo-container {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .photo-container img {
+            max-width: 100%;
+            transition: transform 0.3s;
+        }
+        .photo-container.zoom-in img {
+            transform: scale(1.5);
+        }
+        .photo-container.zoom-out img {
+            transform: scale(0.5);
+        }
+        .zoom-buttons {
+            margin-top: 10px;
+        }
+        .zoom-buttons button {
+            font-size: 1em;
+            margin: 5px;
+        }
+        .comments {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .reply-container {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .reply-container textarea {
+            width: calc(100% - 22px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Immortal Memories</h1>
+        <div class="account-section" id="accountSection">
+            <h2 id="accountStatus">Not logged in</h2>
+            <div id="loginForm">
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <button onclick="login()">Login</button>
+                <button onclick="register()">Register</button>
+            </div>
+            <div id="uploadSection" style="display: none;">
+                <p>Upload a photo:</p>
+                <div class="upload-container">
+                    <input type="file" id="photoUpload" accept="image/*" onchange="displayPhoto(event)">
+                </div>
+            </div>
+        </div>
+        
+        <div class="photo-container" id="photoContainer" style="display: none;">
+            <img id="uploadedPhoto" src="" alt="Uploaded Photo">
+        </div>
+        
+        <div class="zoom-buttons">
+            <button onclick="zoomIn()">Zoom In</button>
+            <button onclick="zoomOut()">Zoom Out</button>
+        </div>
+
+        <p>Leave a comment:</p>
+        <div class="comment-container">
+            <textarea id="comment" placeholder="Write your comment here..."></textarea>
+            <button onclick="submitComment()">Submit Comment</button>
+        </div>
+
+        <p>Select an emoji:</p>
+        <div class="emoji-container">
+            <button onclick="addEmoji('😊')">😊</button>
+            <button onclick="addEmoji('😂')">😂</button>
+            <button onclick="addEmoji('😍')">😍</button>
+            <button onclick="addEmoji('😢')">😢</button>
+            <button onclick="addEmoji('😎')">😎</button>
+        </div>
+
+        <div class="comments" id="comments">
+            <!-- Comments will be added here -->
+        </div>
+    </div>
+
+    <script>
+        let loggedIn = false;
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            // Simulate login (in a real application, you would validate credentials with a server)
+            if (username && password) {
+                loggedIn = true;
+                document.getElementById('accountStatus').innerText = `Logged in as ${username}`;
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('uploadSection').style.display = 'block';
+                document.getElementById('photoContainer').style.display = 'block';
+            } else {
+                alert('Please enter username and password.');
+            }
+        }
+
+        function register() {
+            // Simulate registration (in a real application, you would handle this with a server)
+            alert('Registration functionality is not implemented in this demo.');
+        }
+
+        function displayPhoto(event) {
+            if (!loggedIn) {
+                alert('You need to be logged in to upload photos.');
+                return;
+            }
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('uploadedPhoto');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function submitComment() {
+            const commentText = document.getElementById('comment').value;
+            if (commentText) {
+                const commentsDiv = document.getElementById('comments');
+                const commentDiv = document.createElement('div');
+                commentDiv.classList.add('comment');
+                commentDiv.innerHTML = `
+                    <p>${commentText}</p>
+                    <div class="reply-container">
+                        <textarea placeholder="Write your reply here..."></textarea>
+                        <button onclick="submitReply(this)">Reply</button>
+                    </div>
+                `;
+                commentsDiv.appendChild(commentDiv);
+                document.getElementById('comment').value = '';
+            } else {
+                alert('Please enter a comment.');
+            }
+        }
+
+        function submitReply(button) {
+            const replyText = button.previousElementSibling.value;
+            if (replyText) {
+                const replyDiv = document.createElement('div');
+                replyDiv.classList.add('comment');
+                replyDiv.innerHTML = `<p>${replyText}</p>`;
+                button.parentElement.appendChild(replyDiv);
+                button.previousElementSibling.value = '';
+            } else {
+                alert('Please enter a reply.');
+            }
+        }
+
+        function addEmoji(emoji) {
+            const commentBox = document.getElementById('comment');
+            commentBox.value += emoji;
+            commentBox.focus();
+        }
+
+        function zoomIn() {
+            const photoContainer = document.getElementById('photoContainer');
+            photoContainer.classList.add('zoom-in');
+            photoContainer.classList.remove('zoom-out');
+        }
+
+        function zoomOut() {
+            const photoContainer = document.getElementById('photoContainer');
+            photoContainer.classList.add('zoom-out');
+            photoContainer.classList.remove('zoom-in');
+        }
+    </script>
+</body>
+</html>
